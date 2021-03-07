@@ -3,6 +3,7 @@ version: '3.4'
 services:
 
   mopidy:
+    image: syllogismrxs/mopidy
     build:
       context: ./mopidy
     ports:
@@ -15,6 +16,7 @@ services:
       - ./music:/media/music
 
   snapserver:
+    image: syllogismrxs/snapcast-server
     build:
       context: ./snapcast-server
     depends_on:
@@ -30,6 +32,7 @@ services:
       - "/dev/random:/dev/random"
 
   snapclient:
+    image: syllogismrxs/snapcast-client
     build:
       context: ./snapcast-client
     depends_on:
