@@ -35,8 +35,6 @@ services:
     image: syllogismrxs/snapcast-client
     build:
       context: ./snapcast-client
-    depends_on:
-      - mopidy
     devices:
       - /dev/snd
     command: -h snapserver
