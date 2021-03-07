@@ -1,0 +1,43 @@
+version: '3.4'
+
+services:
+
+  mopidy:
+    build:
+      context: ./mopidy
+    ports:
+      - "6680:6680"
+      - "6600:6600"
+    volumes:
+      - ./mopidy/mopidy.conf:/home/mopidy/.config/mopidy/mopidy.conf:ro
+      - fifo-share:/tmp/snapcast
+      - mopidy-data:/home/mopidy/.local/share/mopidy
+      - ./music:/media/music
+
+  snapserver:
+    build:
+      context: ./snapcast-server
+    depends_on:
+      - mopidy
+    ports:
+      - "1704:1704"
+      - "1705:1705"
+      - "1780:1780"
+    volumes:
+      - fifo-share:/tmp/snapcast
+      - ./snapcast-server/snapserver.conf:/etc/snapserver.conf:ro
+    devices:
+      - "/dev/random:/dev/random"
+
+  snapclient:
+    build:
+      context: ./snapcast-client
+    depends_on:
+      - mopidy
+    devices:
+      - /dev/snd
+    command: -h snapserver
+
+volumes:
+  fifo-share:
+  mopidy-data:
