@@ -6,6 +6,7 @@ services:
     image: syllogismrxs/mopidy
     build:
       context: ./mopidy
+    restart: always
     ports:
       - "6680:6680"
       - "6600:6600"
@@ -19,6 +20,7 @@ services:
     image: syllogismrxs/snapcast-server
     build:
       context: ./snapcast-server
+    restart: always
     depends_on:
       - mopidy
     ports:
@@ -35,6 +37,7 @@ services:
     image: syllogismrxs/snapcast-client
     build:
       context: ./snapcast-client
+    restart: always
     devices:
       - /dev/snd
     command: -h snapserver
