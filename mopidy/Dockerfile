@@ -41,8 +41,6 @@ RUN pip3 install \
     Mopidy \
     Mopidy-MPD \
     Mopidy-Local \
-    Mopidy-TuneIn \
-    Mopidy-GMusic \
     Mopidy-Spotify \
     Mopidy-Iris \
     Mopidy-MusicBox-Webclient
