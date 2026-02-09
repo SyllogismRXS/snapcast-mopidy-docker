@@ -1,12 +1,10 @@
-version: '3.4'
-
 services:
 
   mopidy:
     image: syllogismrxs/mopidy
     build:
       context: ./mopidy
-    restart: always
+    restart: unless-stopped
     ports:
       - "6680:6680"
       - "6600:6600"
@@ -20,7 +18,7 @@ services:
     image: syllogismrxs/snapcast-server
     build:
       context: ./snapcast-server
-    restart: always
+    restart: unless-stopped
     depends_on:
       - mopidy
     ports:
@@ -37,10 +35,9 @@ services:
     image: syllogismrxs/snapcast-client
     build:
       context: ./snapcast-client
-    restart: always
+    restart: unless-stopped
     devices:
       - /dev/snd
-    command: -h snapserver
 
 volumes:
   fifo-share:

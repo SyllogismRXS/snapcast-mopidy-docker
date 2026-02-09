@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:bookworm
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
@@ -8,11 +8,18 @@ RUN apt-get update && \
     gnupg && \
     rm -rf /var/lib/apt/lists/*
 
-RUN wget -q -O - https://apt.mopidy.com/mopidy.gpg | apt-key add - && \
-    wget -q -O /etc/apt/sources.list.d/mopidy.list https://apt.mopidy.com/buster.list
+RUN mkdir -p /etc/apt/keyrings \
+    && wget -q -O /etc/apt/keyrings/mopidy-archive-keyring.gpg \
+    https://apt.mopidy.com/mopidy-archive-keyring.gpg \
+    && wget -q -O /etc/apt/sources.list.d/mopidy.sources https://apt.mopidy.com/bookworm.sources \
+    && apt update \
+    && apt install -y mopidy \
+    mopidy-mpd \
+    mopidy-local \
+    mopidy-alsamixer
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
     tzdata \
     sudo \
     build-essential \
@@ -27,28 +34,24 @@ RUN apt-get update && \
     gstreamer1.0-plugins-bad \
     gstreamer1.0-libav \
     gstreamer1.0-tools \
-    libspotify12 \
-    libspotify-dev \
     libxml2-dev \
     libxslt1-dev \
     libffi-dev \
     libz-dev \
     python3-setuptools \
-    python3-spotify && \
-    rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install \
+RUN pip3 install --break-system-packages \
     Mopidy \
     Mopidy-MPD \
     Mopidy-Local \
-    Mopidy-Spotify \
     Mopidy-Iris \
     Mopidy-MusicBox-Webclient
 
 # Create the "mopidy" user, add user to sudo group
-RUN adduser --disabled-password --gecos '' mopidy \
-    && adduser mopidy sudo  \
+RUN adduser mopidy sudo  \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
 
 WORKDIR /home/mopidy
 COPY mopidy.conf ./.config/mopidy/mopidy.conf
@@ -59,7 +62,7 @@ EXPOSE 6600 6680
 USER mopidy
 
 # Setups local directory and database
-RUN mopidy local scan
+#RUN mopidy local scan
 
 VOLUME ["/home/mopidy/.local/share/mopidy"]
 
@@ -67,4 +70,4 @@ RUN mkdir /tmp/snapcast \
     && mkfifo /tmp/snapcast/snapfifo \
     && chmod 666 /tmp/snapcast/snapfifo
 
-ENTRYPOINT ["/usr/local/bin/mopidy"]
+ENTRYPOINT ["/usr/bin/mopidy", "--config", "/home/mopidy/.config/mopidy/mopidy.conf"]

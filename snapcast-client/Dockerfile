@@ -1,21 +1,16 @@
-FROM debian:buster-slim
-
-ARG SNAPCAST_VERSION=0.24.0
+FROM debian:bookworm
 
 RUN  apt-get update \
   && apt-get install -y wget ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-## Create the "snapclient" user, add user to sudo group
-#RUN adduser --disabled-password --gecos '' snapclient \
-#    && adduser snapclient sudo  \
-#    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+ARG SNAPCAST_VERSION=0.34.0
+RUN wget https://github.com/snapcast/snapcast/releases/download/v${SNAPCAST_VERSION}/snapclient_${SNAPCAST_VERSION}-1_amd64_bookworm.deb
 
-COPY wget_deb.sh .
-RUN chmod +x wget_deb.sh \
-    && DEB_NAME=$(./wget_deb.sh $SNAPCAST_VERSION "client") \
-    && apt-get update \
-    && apt install -y ./${DEB_NAME} \
+RUN apt-get update \
+    && dpkg -i --force-all snapclient*.deb \
+    && apt-get -f install -y \
     && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["/usr/bin/snapclient"]
+ENTRYPOINT ["snapclient", "tcp://192.168.1.157:1704"]
+#ENTRYPOINT ["snapclient", "tcp://192.168.1.158:1704"]
